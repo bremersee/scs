@@ -1,2 +1,0 @@
-# scs
-Static Content Server
