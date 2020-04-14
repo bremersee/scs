@@ -1,0 +1,32 @@
+info:
+  app:
+    name: ${spring.application.name}
+    version: ${INFO_VERSION:1.0.0}
+    description: ${INFO_DESCRIPTION:Static content server}
+
+bremersee:
+  access:
+    actuator-user-name: ${ACTUATOR_USER_NAME:actuator}
+    actuator-user-password: ${ACTUATOR_USER_PASSWORD:changeit}
+    admin-user-name: ${ADMIN_USER_NAME:}
+    admin-user-password: ${ADMIN_USER_PASSWORD:}
+  scs:
+    content-location: ${CONTENT_LOCATION:classpath:content/}
+    root-resource: ${ROOT_RESOURCE:index.html}
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-headers: "*"
+        allowed-methods: "*"
+        allowed-origins: "*"
+
+server:
+  port: ${SERVER_PORT:8080}

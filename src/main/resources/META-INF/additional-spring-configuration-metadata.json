@@ -1,0 +1,16 @@
+{
+  "properties": [
+    {
+      "name": "bremersee.scs.content-location",
+      "type": "java.lang.String",
+      "description": "The location of the content (a classpath resource must start with 'classpath:').",
+      "defaultValue": "/opt/content/"
+    },
+    {
+      "name": "bremersee.scs.root-resource",
+      "type": "java.lang.String",
+      "description": "The default root resource.",
+      "defaultValue": "index.html"
+    }
+  ]
+}
