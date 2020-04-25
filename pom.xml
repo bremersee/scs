@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.bremersee</groupId>
 		<artifactId>common-service-parent</artifactId>
-		<version>2.0.1</version>
+		<version>2.0.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -20,6 +20,8 @@
 		<gh-pages-staging-dir>${project.build.directory}/staging</gh-pages-staging-dir>
 
 		<start-class>org.bremersee.scs.Application</start-class>
+
+		<common-base.version>2.0.1</common-base.version>
 	</properties>
 
 	<scm>
@@ -53,18 +55,17 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux</artifactId>
+			<groupId>org.bremersee</groupId>
+			<artifactId>common-base-webflux-starter</artifactId>
+			<version>${common-base.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
+			<groupId>org.bremersee</groupId>
+			<artifactId>common-base-security-starter</artifactId>
+			<version>${common-base.version}</version>
 		</dependency>
 
+		<!-- Config client -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
@@ -77,11 +78,18 @@
 			<groupId>org.springframework.retry</groupId>
 			<artifactId>spring-retry</artifactId>
 		</dependency>
+
+		<!-- Actuator -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.micrometer</groupId>
 			<artifactId>micrometer-registry-prometheus</artifactId>
 		</dependency>
 
+		<!-- Eureka client -->
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>

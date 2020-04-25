@@ -16,13 +16,26 @@
 
 package org.bremersee.scs;
 
+import org.bremersee.context.MessageSourceAutoConfiguration;
+import org.bremersee.converter.ModelMapperAutoConfiguration;
+import org.bremersee.exception.RestApiExceptionMapperAutoConfiguration;
+import org.bremersee.exception.RestApiExceptionParserAutoConfiguration;
+import org.bremersee.web.reactive.ApiExceptionHandlerAutoConfiguration;
+import org.bremersee.web.reactive.BaseCommonConvertersAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * The application.
  */
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+    BaseCommonConvertersAutoConfiguration.class,
+    ModelMapperAutoConfiguration.class,
+    MessageSourceAutoConfiguration.class,
+    RestApiExceptionMapperAutoConfiguration.class,
+    RestApiExceptionParserAutoConfiguration.class,
+    ApiExceptionHandlerAutoConfiguration.class,
+})
 public class Application {
 
   /**

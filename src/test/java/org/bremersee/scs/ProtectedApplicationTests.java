@@ -16,7 +16,6 @@
 
 package org.bremersee.scs;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -24,10 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
- * The application tests.
+ * The protected application tests.
  *
  * @author Christian Bremer
  */
@@ -35,7 +35,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
     "bremersee.scs.content-location=classpath:content/",
     "bremersee.scs.root-resource=index.html"
 })
-class ApplicationTests {
+@ActiveProfiles({"protection-test"})
+class ProtectedApplicationTests {
 
   /**
    * The web test client.
@@ -47,6 +48,10 @@ class ApplicationTests {
   /**
    * Gets root.
    */
+  @WithMockUser(
+      username = "user",
+      password = "user",
+      authorities = {"ROLE_USER"})
   @Test
   void getRoot() {
     webTestClient
@@ -59,9 +64,23 @@ class ApplicationTests {
         .value(content -> assertTrue(content.contains("Static content server is running.")));
   }
 
+  @Test
+  void getRootAndExpectUnauthorized() {
+    webTestClient
+        .get()
+        .uri("/")
+        .accept(MediaType.ALL)
+        .exchange()
+        .expectStatus().isUnauthorized();
+  }
+
   /**
    * Gets example content.
    */
+  @WithMockUser(
+      username = "user",
+      password = "user",
+      authorities = {"ROLE_USER"})
   @Test
   void getExampleContent() {
     webTestClient
@@ -74,48 +93,11 @@ class ApplicationTests {
         .value(content -> assertTrue(content.contains("Example content.")));
   }
 
-  /**
-   * Gets health.
-   */
   @Test
-  void getHealth() {
+  void getExampleContenttAndExpectUnauthorized() {
     webTestClient
         .get()
-        .uri("/actuator/health")
-        .accept(MediaType.ALL)
-        .exchange()
-        .expectStatus().isOk()
-        .expectBody(String.class)
-        .value(content -> assertFalse(content.isBlank()));
-  }
-
-  /**
-   * Gets metrics.
-   */
-  @WithMockUser(
-      username = "actuator",
-      password = "actuator",
-      authorities = {"ROLE_ACTUATOR"})
-  @Test
-  void getMetrics() {
-    webTestClient
-        .get()
-        .uri("/actuator/metrics")
-        .accept(MediaType.ALL)
-        .exchange()
-        .expectStatus().isOk()
-        .expectBody(String.class)
-        .value(content -> assertFalse(content.isBlank()));
-  }
-
-  /**
-   * Gets metrics and expect unauthorized.
-   */
-  @Test
-  void getMetricsAndExpectUnauthorized() {
-    webTestClient
-        .get()
-        .uri("/actuator/metrics")
+        .uri("/example.html")
         .accept(MediaType.ALL)
         .exchange()
         .expectStatus().isUnauthorized();

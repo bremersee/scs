@@ -1,6 +1,12 @@
 {
   "properties": [
     {
+      "name": "bremersee.scs.protection",
+      "type": "org.bremersee.scs.config.ProtectionMode",
+      "description": "The protection of the static content.",
+      "defaultValue": "none"
+    },
+    {
       "name": "bremersee.scs.content-location",
       "type": "java.lang.String",
       "description": "The location of the content (a classpath resource must start with 'classpath:').",
