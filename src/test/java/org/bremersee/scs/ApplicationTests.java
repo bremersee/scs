@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 /**
@@ -35,6 +36,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
     "bremersee.scs.content-location=classpath:content/",
     "bremersee.scs.root-resource=index.html"
 })
+@ActiveProfiles({"in-memory"})
 class ApplicationTests {
 
   /**

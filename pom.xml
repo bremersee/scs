@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.bremersee</groupId>
 		<artifactId>common-service-parent</artifactId>
-		<version>2.0.2</version>
+		<version>2.0.3</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 
@@ -21,7 +21,7 @@
 
 		<start-class>org.bremersee.scs.Application</start-class>
 
-		<common-base.version>2.0.1</common-base.version>
+		<common-base.version>2.1.4</common-base.version>
 	</properties>
 
 	<scm>
@@ -61,8 +61,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.bremersee</groupId>
+			<artifactId>common-base-actuator-starter</artifactId>
+			<version>${common-base.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bremersee</groupId>
 			<artifactId>common-base-security-starter</artifactId>
 			<version>${common-base.version}</version>
+		</dependency>
+
+		<!-- Eureka client -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
 		<!-- Config client -->
@@ -79,22 +90,22 @@
 			<artifactId>spring-retry</artifactId>
 		</dependency>
 
-		<!-- Actuator -->
+		<!-- Jwt cache -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-actuator</artifactId>
+			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.micrometer</groupId>
-			<artifactId>micrometer-registry-prometheus</artifactId>
+			<groupId>it.ozimov</groupId>
+			<artifactId>embedded-redis</artifactId>
 		</dependency>
 
-		<!-- Eureka client -->
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
@@ -107,24 +118,14 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
+			<groupId>org.bremersee</groupId>
+			<artifactId>common-base-test</artifactId>
+			<version>${common-base.version}</version>
 			<scope>test</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>org.junit.vintage</groupId>
-					<artifactId>junit-vintage-engine</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>io.projectreactor</groupId>
 			<artifactId>reactor-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

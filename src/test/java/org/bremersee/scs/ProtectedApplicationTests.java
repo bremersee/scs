@@ -33,9 +33,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
     "bremersee.scs.content-location=classpath:content/",
-    "bremersee.scs.root-resource=index.html"
+    "bremersee.scs.root-resource=index.html",
+    "bremersee.auth.resource-server:auto"
 })
-@ActiveProfiles({"protection-test"})
+@ActiveProfiles({"in-memory"})
 class ProtectedApplicationTests {
 
   /**

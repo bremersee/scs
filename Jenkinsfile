@@ -1,14 +1,14 @@
 pipeline {
   agent none
   environment {
-    SERVICE_NAME='scs'
-    DOCKER_IMAGE='bremersee/scs'
-    DEV_TAG='snapshot'
-    PROD_TAG='latest'
-    PUSH_SNAPSHOT=true
-    PUSH_RELEASE=true
-    SNAPSHOT_SITE=true
-    RELEASE_SITE=true
+    SERVICE_NAME = 'scs'
+    DOCKER_IMAGE = 'bremersee/scs'
+    DEV_TAG = 'snapshot'
+    PROD_TAG = 'latest'
+    PUSH_SNAPSHOT = true
+    PUSH_RELEASE = true
+    SNAPSHOT_SITE = true
+    RELEASE_SITE = true
   }
   stages {
     stage('Test') {
