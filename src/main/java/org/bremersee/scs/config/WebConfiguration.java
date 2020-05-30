@@ -31,12 +31,8 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Mono;
 
 /**
  * The web configuration.
@@ -76,21 +72,7 @@ public class WebConfiguration {
   public RouterFunction<ServerResponse> scsRouter(
       @Value("${bremersee.scs.content-location:/opt/content/}") String contentLocation) {
 
-
-    return resources(request -> {
-      log.info("uri = {}", request.uri());
-      log.info("headers = {}", request.headers().asHttpHeaders());
-      return Mono.just(resource(contentLocation(contentLocation)));
-
-    });
-    /*
-    return RouterFunctions.route().GET("/**"), request -> {
-      log.info("uri = {}", request.uri());
-      log.info("headers = {}", request.headers().asHttpHeaders());
-      return ServerResponse.ok().body(BodyInserters.fromResource(resource(contentLocation(contentLocation))));
-    };
-     */
-    // return resources("/**", resource(contentLocation(contentLocation)));
+    return resources("/**", resource(contentLocation(contentLocation)));
   }
 
   private static String contentLocation(String contentLocation) {

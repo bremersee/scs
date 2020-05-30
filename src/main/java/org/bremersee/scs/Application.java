@@ -24,7 +24,6 @@ import org.bremersee.web.reactive.ApiExceptionHandlerAutoConfiguration;
 import org.bremersee.web.reactive.BaseCommonConvertersAutoConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.reactive.config.EnableWebFlux;
 
 /**
  * The application.
@@ -37,7 +36,6 @@ import org.springframework.web.reactive.config.EnableWebFlux;
     RestApiExceptionParserAutoConfiguration.class,
     ApiExceptionHandlerAutoConfiguration.class,
 })
-@EnableWebFlux
 public class Application {
 
   /**
