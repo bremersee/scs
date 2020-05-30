@@ -22,6 +22,7 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.r
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
@@ -30,13 +31,18 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.server.HandlerFunction;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
 /**
  * The web configuration.
  */
 @Configuration
+@Slf4j
 public class WebConfiguration {
 
   private static final String CLASSPATH_RESOURCE = "classpath:";
@@ -53,6 +59,7 @@ public class WebConfiguration {
   public RouterFunction<ServerResponse> rootRouter(
       @Value("${bremersee.scs.content-location:/opt/content/}") String contentLocation,
       @Value("${bremersee.scs.root-resource:index.html}") String rootResource) {
+
     return route(
         GET("/"),
         request -> ok().bodyValue(resource(contentLocation(contentLocation) + rootResource)));
@@ -68,7 +75,22 @@ public class WebConfiguration {
   @Bean
   public RouterFunction<ServerResponse> scsRouter(
       @Value("${bremersee.scs.content-location:/opt/content/}") String contentLocation) {
-    return resources("/**", resource(contentLocation(contentLocation)));
+
+
+    return resources(request -> {
+      log.info("uri = {}", request.uri());
+      log.info("headers = {}", request.headers().asHttpHeaders());
+      return Mono.just(resource(contentLocation(contentLocation)));
+
+    });
+    /*
+    return RouterFunctions.route().GET("/**"), request -> {
+      log.info("uri = {}", request.uri());
+      log.info("headers = {}", request.headers().asHttpHeaders());
+      return ServerResponse.ok().body(BodyInserters.fromResource(resource(contentLocation(contentLocation))));
+    };
+     */
+    // return resources("/**", resource(contentLocation(contentLocation)));
   }
 
   private static String contentLocation(String contentLocation) {
