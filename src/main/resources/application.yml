@@ -2,11 +2,10 @@ bremersee:
   scs:
     content-location: ${CONTENT_LOCATION:classpath:content/}
     root-resource: ${ROOT_RESOURCE:index.html}
-    protection: ${PROTECTION_MODE:none}
   actuator:
     auth:
       enable: auto
-      enable-cors: true
+      enable-cors: false
   cors:
     enable: false
   auth:
