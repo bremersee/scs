@@ -33,8 +33,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  * @author Christian Bremer
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
+    "bremersee.scs.pattern=/**",
     "bremersee.scs.content-location=classpath:content/",
-    "bremersee.scs.root-resource=index.html"
+    "bremersee.scs.directory-pattern-index-map.[/dir/**]:dir.html",
+    "bremersee.scs.directory-pattern-index-map.[/**]:index.html"
 })
 @ActiveProfiles({"in-memory"})
 class ApplicationTests {
@@ -62,18 +64,63 @@ class ApplicationTests {
   }
 
   /**
+   * Gets root with hash.
+   */
+  @Test
+  void getRootWithHash() {
+    webTestClient
+        .get()
+        .uri("/#state")
+        .accept(MediaType.ALL)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(String.class)
+        .value(content -> assertTrue(content.contains("Static content server is running.")));
+  }
+
+  /**
    * Gets example content.
    */
   @Test
   void getExampleContent() {
     webTestClient
         .get()
-        .uri("/example.html")
+        .uri("/example.html?foo=bar")
         .accept(MediaType.ALL)
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
         .value(content -> assertTrue(content.contains("Example content.")));
+  }
+
+  /**
+   * Gets dir content.
+   */
+  @Test
+  void getDirContent() {
+    webTestClient
+        .get()
+        .uri("/dir/dir.html")
+        .accept(MediaType.ALL)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(String.class)
+        .value(content -> assertTrue(content.contains("Dir content.")));
+  }
+
+  /**
+   * Gets dir content without file.
+   */
+  @Test
+  void getDirContentWithoutFile() {
+    webTestClient
+        .get()
+        .uri("/dir")
+        .accept(MediaType.ALL)
+        .exchange()
+        .expectStatus().isOk()
+        .expectBody(String.class)
+        .value(content -> assertTrue(content.contains("Dir content.")));
   }
 
   /**

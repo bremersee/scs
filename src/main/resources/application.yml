@@ -1,7 +1,8 @@
 bremersee:
   scs:
-    content-location: ${CONTENT_LOCATION:classpath:content/}
-    root-resource: ${ROOT_RESOURCE:index.html}
+    pattern: ${SCS_PATTERN:/**}
+    content-location: ${SCS_CONTENT_LOCATION:classpath:content/}
+    default-index: ${SCS_INDEX:index.html}
   actuator:
     auth:
       enable: auto
@@ -47,6 +48,7 @@ logging:
     com.netflix.eureka.registry: warn
     com.netflix.discovery.shared.resolver: warn
     org.springframework.cloud.configclient: warn
+    org.bremersee.scs: debug
 
 ---
 

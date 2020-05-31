@@ -33,7 +33,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
     "bremersee.scs.content-location=classpath:content/",
-    "bremersee.scs.root-resource=index.html",
     "bremersee.auth.resource-server:auto"
 })
 @ActiveProfiles({"in-memory"})
@@ -65,6 +64,9 @@ class ProtectedApplicationTests {
         .value(content -> assertTrue(content.contains("Static content server is running.")));
   }
 
+  /**
+   * Gets root and expect unauthorized.
+   */
   @Test
   void getRootAndExpectUnauthorized() {
     webTestClient
@@ -94,8 +96,11 @@ class ProtectedApplicationTests {
         .value(content -> assertTrue(content.contains("Example content.")));
   }
 
+  /**
+   * Gets example content and expect unauthorized.
+   */
   @Test
-  void getExampleContenttAndExpectUnauthorized() {
+  void getExampleContentAndExpectUnauthorized() {
     webTestClient
         .get()
         .uri("/example.html")

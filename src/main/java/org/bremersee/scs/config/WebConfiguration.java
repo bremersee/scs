@@ -16,21 +16,13 @@
 
 package org.bremersee.scs.config;
 
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
 import static org.springframework.web.reactive.function.server.RouterFunctions.resources;
-import static org.springframework.web.reactive.function.server.RouterFunctions.route;
-import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
@@ -38,55 +30,15 @@ import org.springframework.web.reactive.function.server.ServerResponse;
  * The web configuration.
  */
 @Configuration
+@EnableConfigurationProperties(ScsProperties.class)
 @Slf4j
 public class WebConfiguration {
 
-  private static final String CLASSPATH_RESOURCE = "classpath:";
-
-  /**
-   * Root router.
-   *
-   * @param contentLocation the content location
-   * @param rootResource the root resource
-   * @return the router function
-   */
   @RefreshScope
   @Bean
-  public RouterFunction<ServerResponse> rootRouter(
-      @Value("${bremersee.scs.content-location:/opt/content/}") String contentLocation,
-      @Value("${bremersee.scs.root-resource:index.html}") String rootResource) {
-
-    return route(
-        GET("/"),
-        request -> ok().bodyValue(resource(contentLocation(contentLocation) + rootResource)));
-  }
-
-  /**
-   * Content router.
-   *
-   * @param contentLocation the content location
-   * @return the router function
-   */
-  @RefreshScope
-  @Bean
-  public RouterFunction<ServerResponse> scsRouter(
-      @Value("${bremersee.scs.content-location:/opt/content/}") String contentLocation) {
-
-    return resources("/**", resource(contentLocation(contentLocation)));
-  }
-
-  private static String contentLocation(String contentLocation) {
-    return Optional.ofNullable(contentLocation)
-        .map(String::trim)
-        .map(value -> !value.endsWith("/") ? value + "/" : value)
-        .orElse("/opt/content/");
-  }
-
-  private static Resource resource(String location) {
-    Assert.notNull(location, "Resource location must not be null.");
-    return location.toLowerCase().startsWith(CLASSPATH_RESOURCE)
-        ? new ClassPathResource(location.substring(CLASSPATH_RESOURCE.length()))
-        : new FileSystemResource(location);
+  public RouterFunction<ServerResponse> scsRouter(ScsProperties properties) {
+    log.info("Creating static content router with {}", properties);
+    return resources(new ScsResourceLookupFunction(properties));
   }
 
 }
