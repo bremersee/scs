@@ -16,6 +16,10 @@
 
 package org.bremersee.scs.config;
 
+import static org.bremersee.scs.config.ScsProperties.DEFAULT_CLASSPATH_LOCATION;
+import static org.bremersee.scs.config.ScsProperties.createContentResource;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
@@ -55,7 +59,19 @@ public class ScsResourceLookupFunction implements Function<ServerRequest, Mono<R
   public ScsResourceLookupFunction(@NotNull @Valid ScsProperties properties) {
     this.properties = properties;
     this.pattern = PATTERN_PARSER.parse(properties.getPattern());
-    this.location = properties.createContentResource();
+    if (!this.properties.getContentLocation().toLowerCase()
+        .startsWith(ScsProperties.CLASSPATH_PREFIX)) {
+      File dir = new File(this.properties.getContentLocation());
+      if (!dir.exists() || !dir.isDirectory()) {
+        log.warn("Content location {} does not exist, using fallback location {}",
+            this.properties.getContentLocation(), DEFAULT_CLASSPATH_LOCATION);
+        this.location = createContentResource(DEFAULT_CLASSPATH_LOCATION);
+      } else {
+        this.location = properties.createContentResource();
+      }
+    } else {
+      this.location = properties.createContentResource();
+    }
   }
 
   @SuppressWarnings("BlockingMethodInNonBlockingContext")

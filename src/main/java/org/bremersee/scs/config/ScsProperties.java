@@ -56,11 +56,16 @@ public class ScsProperties {
    */
   static final String CLASSPATH_PREFIX = "classpath:";
 
+  /**
+   * The default classpath location.
+   */
+  static final String DEFAULT_CLASSPATH_LOCATION = CLASSPATH_PREFIX + "content/";
+
   @NotNull
   private String pattern = "/**";
 
   @NotNull
-  private String contentLocation = CLASSPATH_PREFIX + "content/";
+  private String contentLocation = "/opt/content/";
 
   private String defaultIndex = "index.html";
 
@@ -85,7 +90,16 @@ public class ScsProperties {
    * @return the resource
    */
   public Resource createContentResource() {
-    final String location = getContentLocation();
+    return createContentResource(getContentLocation());
+  }
+
+  /**
+   * Create content root resource.
+   *
+   * @param location the location
+   * @return the resource
+   */
+  static Resource createContentResource(@NotNull String location) {
     return location.toLowerCase().startsWith(CLASSPATH_PREFIX)
         ? new ClassPathResource(location.substring(CLASSPATH_PREFIX.length()))
         : new FileSystemResource(location);
