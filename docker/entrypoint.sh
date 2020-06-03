@@ -1,4 +1,7 @@
 #!/bin/sh
+if [ -e /opt/app.conf ]; then
+  source /opt/app.conf
+fi
 if [ -z "$CONFIG_USER" ] && [ ! -z "$CONFIG_USER_FILE" ] && [ -e $CONFIG_USER_FILE ]; then
   export CONFIG_USER="$(cat $CONFIG_USER_FILE)"
 fi
