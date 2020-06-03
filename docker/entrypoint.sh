@@ -32,6 +32,4 @@ fi
 if [ -z "$SCS_USER_PASSWORD" ] && [ ! -z "$SCS_USER_PASSWORD_FILE" ] && [ -e $SCS_USER_PASSWORD_FILE ]; then
   export SCS_USER_PASSWORD="$(cat $SCS_USER_PASSWORD_FILE)"
 fi
-echo "Application: $APPLICATION_NAME"
-echo "Pattern: $SCS_PATTERN"
 java -Djava.security.egd=file:/dev/./urandom -jar /opt/app.jar
