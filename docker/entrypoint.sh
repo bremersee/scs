@@ -1,4 +1,13 @@
 #!/bin/sh
+if [ -e /opt/app.name.conf ]; then
+  APP_NAME="$(cat /opt/app.name.conf)"
+  if [ -z "$APPLICATION_NAME" ]; then
+    export APPLICATION_NAME="$APP_NAME"
+  fi
+  if [ -z "$SCS_PATTERN" ]; then
+    export SCS_PATTERN="/$APP_NAME/**"
+  fi
+fi
 if [ -z "$CONFIG_USER" ] && [ ! -z "$CONFIG_USER_FILE" ] && [ -e $CONFIG_USER_FILE ]; then
   export CONFIG_USER="$(cat $CONFIG_USER_FILE)"
 fi
@@ -23,4 +32,6 @@ fi
 if [ -z "$SCS_USER_PASSWORD" ] && [ ! -z "$SCS_USER_PASSWORD_FILE" ] && [ -e $SCS_USER_PASSWORD_FILE ]; then
   export SCS_USER_PASSWORD="$(cat $SCS_USER_PASSWORD_FILE)"
 fi
+echo "Application: $APPLICATION_NAME"
+echo "Pattern: $SCS_PATTERN"
 java -Djava.security.egd=file:/dev/./urandom -jar /opt/app.jar

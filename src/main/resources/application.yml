@@ -1,7 +1,7 @@
 bremersee:
   scs:
     pattern: ${SCS_PATTERN:/**}
-    content-location: ${SCS_CONTENT_LOCATION:classpath:content/}
+    content-location: ${SCS_CONTENT_LOCATION:/opt/content/}
     default-index: ${SCS_INDEX:index.html}
   actuator:
     auth:
