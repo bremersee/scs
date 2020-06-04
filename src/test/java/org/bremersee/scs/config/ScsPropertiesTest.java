@@ -16,12 +16,14 @@
 
 package org.bremersee.scs.config;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import org.bouncycastle.operator.MacCalculatorProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -48,7 +50,11 @@ class ScsPropertiesTest {
     expected.setPattern(value);
 
     assertEquals(actual, actual);
+    assertEquals(actual.hashCode(), actual.hashCode());
     assertEquals(expected, actual);
+    assertEquals(expected.hashCode(), actual.hashCode());
+    //noinspection SimplifiableJUnitAssertion
+    assertTrue(expected.equals(actual));
     assertNotEquals(expected, null);
     assertNotEquals(expected, new Object());
 
@@ -74,6 +80,9 @@ class ScsPropertiesTest {
 
     assertEquals(actual, actual);
     assertEquals(expected, actual);
+    assertEquals(expected.hashCode(), actual.hashCode());
+    //noinspection SimplifiableJUnitAssertion
+    assertTrue(expected.equals(actual));
     assertNotEquals(expected, null);
     assertNotEquals(expected, new Object());
 
@@ -95,6 +104,9 @@ class ScsPropertiesTest {
 
     assertEquals(actual, actual);
     assertEquals(expected, actual);
+    assertEquals(expected.hashCode(), actual.hashCode());
+    //noinspection SimplifiableJUnitAssertion
+    assertTrue(expected.equals(actual));
     assertNotEquals(expected, null);
     assertNotEquals(expected, new Object());
 
@@ -117,6 +129,9 @@ class ScsPropertiesTest {
 
     assertEquals(actual, actual);
     assertEquals(expected, actual);
+    assertEquals(expected.hashCode(), actual.hashCode());
+    //noinspection SimplifiableJUnitAssertion
+    assertTrue(expected.equals(actual));
     assertNotEquals(expected, null);
     assertNotEquals(expected, new Object());
 
@@ -149,7 +164,7 @@ class ScsPropertiesTest {
     value.put("/somewhere/**", "some.html");
     ScsProperties properties = new ScsProperties();
     properties.setDirectoryPatternIndexMap(value);
-    properties.setDefaultIndex("home.html");
+    properties.setDefaultIndex("/home.html");
 
     Optional<String> index = properties
         .findDirectoryIndex("/somewhere/over/the/rainbow");
@@ -158,6 +173,10 @@ class ScsPropertiesTest {
 
     index = properties
         .findDirectoryIndex("/nowhere/man");
+    assertTrue(index.isPresent());
+    assertEquals("home.html", index.get());
+
+    index = properties.findDirectoryIndex(null);
     assertTrue(index.isPresent());
     assertEquals("home.html", index.get());
   }

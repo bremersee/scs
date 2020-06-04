@@ -127,12 +127,6 @@ public class ScsProperties {
     return map.entrySet().stream()
         .map(entry -> {
           String key = entry.getKey();
-          if (key.startsWith("[")) {
-            key = key.substring(1);
-          }
-          if (key.endsWith("]")) {
-            key = key.substring(0, key.length() - 1);
-          }
           log.debug("Key {} -> {}", entry.getKey(), key);
           return Pair.of(key, entry.getValue());
         })
