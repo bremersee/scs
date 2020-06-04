@@ -1,12 +1,9 @@
 #!/bin/sh
-if [ -e /opt/app.name.conf ]; then
-  APP_NAME="$(cat /opt/app.name.conf)"
-  if [ -z "$APPLICATION_NAME" ]; then
-    export APPLICATION_NAME="$APP_NAME"
-  fi
-  if [ -z "$SCS_PATTERN" ]; then
-    export SCS_PATTERN="/$APP_NAME/**"
-  fi
+if [ -z "$SCS_PATTERN" ] && [ -e /opt/app.prefix.conf ]; then
+  export SCS_PATTERN="$(cat /opt/app.prefix.conf)"
+fi
+if [ -z "$APPLICATION_NAME" ] && [ -e /opt/app.name.conf ]; then
+  export APPLICATION_NAME="$(cat /opt/app.name.conf)"
 fi
 if [ -z "$CONFIG_USER" ] && [ ! -z "$CONFIG_USER_FILE" ] && [ -e $CONFIG_USER_FILE ]; then
   export CONFIG_USER="$(cat $CONFIG_USER_FILE)"
