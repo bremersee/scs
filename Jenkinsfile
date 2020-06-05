@@ -8,7 +8,7 @@ pipeline {
     PUSH_SNAPSHOT = true
     PUSH_RELEASE = false
     SNAPSHOT_SITE = true
-    RELEASE_SITE = true
+    RELEASE_SITE = false
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '8', artifactNumToKeepStr: '8'))
