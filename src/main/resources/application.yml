@@ -1,0 +1,74 @@
+bremersee:
+  scs:
+    pattern: ${SCS_PATTERN:/**}
+    content-location: ${SCS_CONTENT_LOCATION:/opt/content/}
+    default-index: ${SCS_INDEX:index.html}
+  actuator:
+    auth:
+      enable: auto
+      enable-cors: false
+  cors:
+    enable: false
+  auth:
+    resource-server: none
+  redis:
+    embedded: true
+
+spring:
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+
+eureka:
+  client:
+    enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+      cors:
+        allowed-headers: "*"
+        allowed-methods: "*"
+        allowed-origins: "*"
+        allow-credentials: true
+  endpoint:
+    health:
+      show-details: when_authorized
+
+server:
+  port: ${SERVER_PORT:8080}
+  forward-headers-strategy: ${SERVER_FORWARD_HEADERS_STRATEGY:framework}
+
+logging:
+  level:
+    ROOT: info
+    com.netflix.eureka.registry: warn
+    com.netflix.discovery.shared.resolver: warn
+    org.springframework.cloud.configclient: warn
+    org.bremersee.scs: debug
+
+---
+
+spring:
+  profiles: in-memory
+
+bremersee:
+  auth:
+    in-memory-users:
+      - name: ${$ADMIN_USER_NAME:admin}
+        password: ${$ADMIN_USER_PASSWORD:admin}
+        authorities:
+          - "ROLE_USER"
+          - "ROLE_ADMIN"
+      - name: ${$ACTUATOR_USER_NAME:actuator}
+        password: ${$ACTUATOR_USER_PASSWORD:actuator}
+        authorities:
+          - "ROLE_ACTUATOR"
+          - "ROLE_ACTUATOR_ADMIN"
+      - name: ${$SCS_USER_NAME:user}
+        password: ${SCS_USER_PASSWORD:user}
+        authorities:
+          - "ROLE_USER"

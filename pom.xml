@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.bremersee</groupId>
+		<artifactId>common-service-parent</artifactId>
+		<version>2.0.3</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+
+	<artifactId>scs</artifactId>
+	<version>1.0.0</version>
+	<name>scs</name>
+	<description>Static Content Server</description>
+
+	<properties>
+		<github.repo>scs</github.repo>
+		<gh-pages-staging-dir>${project.build.directory}/staging</gh-pages-staging-dir>
+
+		<start-class>org.bremersee.scs.Application</start-class>
+
+		<common-base.version>2.1.4</common-base.version>
+	</properties>
+
+	<scm>
+		<connection>scm:git:ssh://git@github.com:bremersee/scs.git</connection>
+		<developerConnection>
+			scm:git:ssh://git@github.com:bremersee/scs.git
+		</developerConnection>
+		<url>https://github.com/bremersee/scs</url>
+	</scm>
+
+	<issueManagement>
+		<url>https://github.com/bremersee/scs/issues</url>
+		<system>GitHub Issues</system>
+	</issueManagement>
+
+	<distributionManagement>
+		<repository>
+			<id>bremersee-releases</id>
+			<url>https://nexus.bremersee.org/repository/maven-releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>bremersee-snapshots</id>
+			<url>https://nexus.bremersee.org/repository/maven-snapshots/</url>
+			<uniqueVersion>false</uniqueVersion>
+		</snapshotRepository>
+		<site>
+			<id>bremersee-sites</id>
+			<url>dav:https://nexus.bremersee.org/repository/maven-sites/scs/${project.version}</url>
+		</site>
+	</distributionManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.bremersee</groupId>
+			<artifactId>common-base-webflux-starter</artifactId>
+			<version>${common-base.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bremersee</groupId>
+			<artifactId>common-base-actuator-starter</artifactId>
+			<version>${common-base.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.bremersee</groupId>
+			<artifactId>common-base-security-starter</artifactId>
+			<version>${common-base.version}</version>
+		</dependency>
+
+		<!-- Eureka client -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+		</dependency>
+
+		<!-- Config client -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.retry</groupId>
+			<artifactId>spring-retry</artifactId>
+		</dependency>
+
+		<!-- Jwt cache -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-redis-reactive</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>it.ozimov</groupId>
+			<artifactId>embedded-redis</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>org.bremersee</groupId>
+			<artifactId>common-base-test</artifactId>
+			<version>${common-base.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.projectreactor</groupId>
+			<artifactId>reactor-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>
