@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+scs,org.bremersee.scs,Application,5,3,0,0,2,1,1,1,1,1
+scs,org.bremersee.scs.config,ScsProperties,30,340,22,30,0,42,18,30,0,22
+scs,org.bremersee.scs.config,ScsResourceLookupFunction,56,225,18,26,13,59,14,14,0,6
+scs,org.bremersee.scs.config,WebConfiguration,0,17,0,0,0,4,0,3,0,3

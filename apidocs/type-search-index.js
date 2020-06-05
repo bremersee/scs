@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"org.bremersee.scs","l":"Application"},{"p":"org.bremersee.scs.config","l":"ScsProperties"},{"p":"org.bremersee.scs.config","l":"ScsResourceLookupFunction"},{"p":"org.bremersee.scs.config","l":"WebConfiguration"}]
