@@ -7,5 +7,4 @@ RUN chmod 755 /opt/entrypoint.sh
 RUN mkdir /opt/log
 RUN mkdir /opt/content
 COPY docker/index.html /opt/content/index.html
-EXPOSE 80
 ENTRYPOINT ["/opt/entrypoint.sh"]
