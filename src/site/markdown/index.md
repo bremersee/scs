@@ -32,7 +32,7 @@ bremersee:
 The uri `http://localhost/somewhere` will then return `/opt/content/somewhere/choice.html`.
 
 The property `bremersee.scs.pattern` defines a request path prefix to listen on. It is stripped 
-from the resource location. It will be useful, if you are running the application behind a reverse 
+from the resource location. This will be useful, if you are running the application behind a reverse 
 proxy. If the pattern is for example `/demo/**`
 
 ```yaml
@@ -54,7 +54,7 @@ There is a docker image of this application available on docker hub
 docker run -v /var/www/html:/opt/content -p 8080:8080 bremersee/scs:latest
 ```
 
-The image can also be used for example as base image of your angular application.
+The image can also be used as a base image of your angular application for example.
 
 The `Dockerfile` may look like this:
 
