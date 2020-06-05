@@ -38,7 +38,7 @@ proxy. If the pattern is for example `/demo/**`
 ```yaml
 bremersee:
   scs:
-    pattern: /somewhere/**
+    pattern: /demo/**
 ```
 
 and the request uri is `http://localhost/demo/somewhere/over/the/rainbow/colors.html`, the 
