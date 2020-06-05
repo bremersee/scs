@@ -6,7 +6,7 @@ pipeline {
     DEV_TAG = 'snapshot'
     PROD_TAG = 'latest'
     PUSH_SNAPSHOT = true
-    PUSH_RELEASE = true
+    PUSH_RELEASE = false
     SNAPSHOT_SITE = true
     RELEASE_SITE = true
   }
