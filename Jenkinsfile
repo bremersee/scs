@@ -5,9 +5,9 @@ pipeline {
     DOCKER_IMAGE = 'bremersee/scs'
     DEV_TAG = 'snapshot'
     PROD_TAG = 'latest'
-    PUSH_SNAPSHOT = false
+    PUSH_SNAPSHOT = true
     PUSH_RELEASE = true
-    SNAPSHOT_SITE = false
+    SNAPSHOT_SITE = true
     RELEASE_SITE = true
   }
   options {

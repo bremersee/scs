@@ -11,9 +11,9 @@ bremersee:
     enable: false
   auth:
     resource-server: none
+    frame-options-mode: sameorigin
   redis:
     embedded: true
-
 spring:
   cloud:
     loadbalancer:
