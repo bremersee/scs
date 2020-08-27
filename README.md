@@ -1,6 +1,6 @@
 # Static Content Server
 
-[![codecov](https://codecov.io/gh/bremersee/scs/branch/master/graph/badge.svg)](https://codecov.io/gh/bremersee/scs)
+[![codecov](https://codecov.io/gh/bremersee/scs/branch/develop/graph/badge.svg)](https://codecov.io/gh/bremersee/scs)
 
 The Static Content Server is a Spring Web Flux application that serves static content from the file 
 system. The property `bremersee.scs.content-location` specifies the root location of the content.
@@ -105,5 +105,5 @@ The angular application is then available under `http://localhost:4200/demo`.
 
 - [Release](https://bremersee.github.io/scs/index.html)
 
-- [Snapshot](https://nexus.bremersee.org/repository/maven-sites/scs/1.0.1-SNAPSHOT/index.html)
+- [Snapshot](https://nexus.bremersee.org/repository/maven-sites/scs/1.0.2-SNAPSHOT/index.html)
 
