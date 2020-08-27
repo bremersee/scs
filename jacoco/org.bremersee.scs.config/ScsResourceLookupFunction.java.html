@@ -38,12 +38,14 @@ import reactor.core.publisher.Mono;
 
 /**
  * The static content resource lookup function.
+ *
+ * @author Christian Bremer
  */
 @Validated
-<span class="fc" id="L43">@Slf4j</span>
+<span class="fc" id="L45">@Slf4j</span>
 public class ScsResourceLookupFunction implements Function&lt;ServerRequest, Mono&lt;Resource&gt;&gt; {
 
-<span class="fc" id="L46">  private static final PathPatternParser PATTERN_PARSER = new PathPatternParser();</span>
+<span class="fc" id="L48">  private static final PathPatternParser PATTERN_PARSER = new PathPatternParser();</span>
 
   private final PathPattern pattern;
 
@@ -56,105 +58,105 @@ public class ScsResourceLookupFunction implements Function&lt;ServerRequest, Mon
    *
    * @param properties the properties
    */
-<span class="fc" id="L59">  public ScsResourceLookupFunction(@NotNull @Valid ScsProperties properties) {</span>
-<span class="fc" id="L60">    this.properties = properties;</span>
-<span class="fc" id="L61">    this.pattern = PATTERN_PARSER.parse(properties.getPattern());</span>
-<span class="fc" id="L62">    if (!this.properties.getContentLocation().toLowerCase()</span>
-<span class="fc bfc" id="L63" title="All 2 branches covered.">        .startsWith(ScsProperties.CLASSPATH_PREFIX)) {</span>
-<span class="fc" id="L64">      File dir = new File(this.properties.getContentLocation());</span>
-<span class="pc bpc" id="L65" title="3 of 4 branches missed.">      if (!dir.exists() || !dir.isDirectory()) {</span>
-<span class="fc" id="L66">        log.warn(&quot;Content location {} does not exist, using fallback location {}&quot;,</span>
-<span class="fc" id="L67">            this.properties.getContentLocation(), DEFAULT_CLASSPATH_LOCATION);</span>
-<span class="fc" id="L68">        this.location = createContentResource(DEFAULT_CLASSPATH_LOCATION);</span>
+<span class="fc" id="L61">  public ScsResourceLookupFunction(@NotNull @Valid ScsProperties properties) {</span>
+<span class="fc" id="L62">    this.properties = properties;</span>
+<span class="fc" id="L63">    this.pattern = PATTERN_PARSER.parse(properties.getPattern());</span>
+<span class="fc" id="L64">    if (!this.properties.getContentLocation().toLowerCase()</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        .startsWith(ScsProperties.CLASSPATH_PREFIX)) {</span>
+<span class="fc" id="L66">      File dir = new File(this.properties.getContentLocation());</span>
+<span class="pc bpc" id="L67" title="3 of 4 branches missed.">      if (!dir.exists() || !dir.isDirectory()) {</span>
+<span class="fc" id="L68">        log.warn(&quot;Content location {} does not exist, using fallback location {}&quot;,</span>
+<span class="fc" id="L69">            this.properties.getContentLocation(), DEFAULT_CLASSPATH_LOCATION);</span>
+<span class="fc" id="L70">        this.location = createContentResource(DEFAULT_CLASSPATH_LOCATION);</span>
       } else {
-<span class="nc" id="L70">        this.location = properties.createContentResource();</span>
+<span class="nc" id="L72">        this.location = properties.createContentResource();</span>
       }
-<span class="fc" id="L72">    } else {</span>
-<span class="fc" id="L73">      this.location = properties.createContentResource();</span>
+<span class="fc" id="L74">    } else {</span>
+<span class="fc" id="L75">      this.location = properties.createContentResource();</span>
     }
-<span class="fc" id="L75">  }</span>
+<span class="fc" id="L77">  }</span>
 
   @SuppressWarnings(&quot;BlockingMethodInNonBlockingContext&quot;)
   @Override
   public Mono&lt;Resource&gt; apply(ServerRequest request) {
-<span class="fc" id="L80">    PathContainer pathContainer = request.pathContainer();</span>
-<span class="fc" id="L81">    log.debug(&quot;Looking for static content of request path {}&quot;, pathContainer.value());</span>
-<span class="pc bpc" id="L82" title="1 of 2 branches missed.">    if (!this.pattern.matches(pathContainer)) {</span>
-<span class="nc" id="L83">      log.debug(&quot;Pattern {} does not match request path, return no static content resource.&quot;,</span>
-<span class="nc" id="L84">          properties.getPattern());</span>
-<span class="nc" id="L85">      return Mono.empty();</span>
+<span class="fc" id="L82">    PathContainer pathContainer = request.pathContainer();</span>
+<span class="fc" id="L83">    log.debug(&quot;Looking for static content of request path {}&quot;, pathContainer.value());</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">    if (!this.pattern.matches(pathContainer)) {</span>
+<span class="nc" id="L85">      log.debug(&quot;Pattern {} does not match request path, return no static content resource.&quot;,</span>
+<span class="nc" id="L86">          properties.getPattern());</span>
+<span class="nc" id="L87">      return Mono.empty();</span>
     }
-<span class="fc" id="L87">    pathContainer = this.pattern.extractPathWithinPattern(pathContainer);</span>
-<span class="fc" id="L88">    String path = pathContainer.value();</span>
-<span class="fc" id="L89">    log.debug(&quot;Extracted path is {}&quot;, path);</span>
-<span class="fc" id="L90">    path = processPath(pathContainer.value());</span>
-<span class="fc" id="L91">    log.debug(&quot;Processed path is {}&quot;, path);</span>
-<span class="fc bfc" id="L92" title="All 2 branches covered.">    if (path.contains(&quot;%&quot;)) {</span>
-<span class="fc" id="L93">      path = StringUtils.uriDecode(path, StandardCharsets.UTF_8);</span>
-<span class="fc" id="L94">      log.debug(&quot;Url decoded path is {}&quot;, path);</span>
+<span class="fc" id="L89">    pathContainer = this.pattern.extractPathWithinPattern(pathContainer);</span>
+<span class="fc" id="L90">    String path = pathContainer.value();</span>
+<span class="fc" id="L91">    log.debug(&quot;Extracted path is {}&quot;, path);</span>
+<span class="fc" id="L92">    path = processPath(pathContainer.value());</span>
+<span class="fc" id="L93">    log.debug(&quot;Processed path is {}&quot;, path);</span>
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    if (path.contains(&quot;%&quot;)) {</span>
+<span class="fc" id="L95">      path = StringUtils.uriDecode(path, StandardCharsets.UTF_8);</span>
+<span class="fc" id="L96">      log.debug(&quot;Url decoded path is {}&quot;, path);</span>
     }
-<span class="fc bfc" id="L96" title="All 2 branches covered.">    if (!StringUtils.hasLength(path)) {</span>
-<span class="fc" id="L97">      log.debug(&quot;Path is empty, trying to find an index file.&quot;);</span>
-<span class="fc" id="L98">      path = findDirectoryIndex(path);</span>
-<span class="pc bpc" id="L99" title="1 of 2 branches missed.">      if (StringUtils.isEmpty(path)) {</span>
-<span class="nc" id="L100">        log.debug(&quot;No index file was found, return no static content resource.&quot;);</span>
-<span class="nc" id="L101">        return Mono.empty();</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">    if (!StringUtils.hasLength(path)) {</span>
+<span class="fc" id="L99">      log.debug(&quot;Path is empty, trying to find an index file.&quot;);</span>
+<span class="fc" id="L100">      path = findDirectoryIndex(path);</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">      if (StringUtils.isEmpty(path)) {</span>
+<span class="nc" id="L102">        log.debug(&quot;No index file was found, return no static content resource.&quot;);</span>
+<span class="nc" id="L103">        return Mono.empty();</span>
       }
-<span class="fc" id="L103">      log.debug(&quot;An index file was found, path is {}&quot;, path);</span>
+<span class="fc" id="L105">      log.debug(&quot;An index file was found, path is {}&quot;, path);</span>
     }
 
     try {
-<span class="fc" id="L107">      Resource resource = this.location.createRelative(path);</span>
-<span class="fc" id="L108">      boolean exists = resource.exists();</span>
-<span class="fc" id="L109">      boolean isReadable = resource.isReadable();</span>
-<span class="fc" id="L110">      log.debug(&quot;Resource exists? {}, resource is readable? {}&quot;, exists, isReadable);</span>
-<span class="fc bfc" id="L111" title="All 4 branches covered.">      if (exists &amp;&amp; !isReadable) {</span>
-<span class="fc" id="L112">        String pathWithIndex = findDirectoryIndex(path);</span>
-<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (path.equals(pathWithIndex)) {</span>
-<span class="nc" id="L114">          log.debug(&quot;No index file was found, return no static content resource.&quot;);</span>
-<span class="nc" id="L115">          return Mono.empty();</span>
+<span class="fc" id="L109">      Resource resource = this.location.createRelative(path);</span>
+<span class="fc" id="L110">      boolean exists = resource.exists();</span>
+<span class="fc" id="L111">      boolean isReadable = resource.isReadable();</span>
+<span class="fc" id="L112">      log.debug(&quot;Resource exists? {}, resource is readable? {}&quot;, exists, isReadable);</span>
+<span class="fc bfc" id="L113" title="All 4 branches covered.">      if (exists &amp;&amp; !isReadable) {</span>
+<span class="fc" id="L114">        String pathWithIndex = findDirectoryIndex(path);</span>
+<span class="pc bpc" id="L115" title="1 of 2 branches missed.">        if (path.equals(pathWithIndex)) {</span>
+<span class="nc" id="L116">          log.debug(&quot;No index file was found, return no static content resource.&quot;);</span>
+<span class="nc" id="L117">          return Mono.empty();</span>
         }
-<span class="fc" id="L117">        path = pathWithIndex;</span>
-<span class="fc" id="L118">        resource = this.location.createRelative(path);</span>
-<span class="fc" id="L119">        isReadable = resource.isReadable();</span>
+<span class="fc" id="L119">        path = pathWithIndex;</span>
+<span class="fc" id="L120">        resource = this.location.createRelative(path);</span>
+<span class="fc" id="L121">        isReadable = resource.isReadable();</span>
       }
-<span class="pc bpc" id="L121" title="1 of 4 branches missed.">      if (exists &amp;&amp; isReadable) {</span>
-<span class="fc" id="L122">        log.debug(&quot;Returning static content resource {}&quot;, path);</span>
-<span class="fc" id="L123">        return Mono.just(resource);</span>
+<span class="pc bpc" id="L123" title="1 of 4 branches missed.">      if (exists &amp;&amp; isReadable) {</span>
+<span class="fc" id="L124">        log.debug(&quot;Returning static content resource {}&quot;, path);</span>
+<span class="fc" id="L125">        return Mono.just(resource);</span>
       } else {
-<span class="fc" id="L125">        log.debug(&quot;Resource ('{}') does not exists.&quot;, path);</span>
-<span class="fc" id="L126">        return Mono.empty();</span>
+<span class="fc" id="L127">        log.debug(&quot;Resource ('{}') does not exists.&quot;, path);</span>
+<span class="fc" id="L128">        return Mono.empty();</span>
       }
-<span class="nc" id="L128">    } catch (IOException ex) {</span>
-<span class="nc" id="L129">      throw new UncheckedIOException(ex);</span>
+<span class="nc" id="L130">    } catch (IOException ex) {</span>
+<span class="nc" id="L131">      throw new UncheckedIOException(ex);</span>
     }
   }
 
   private String processPath(String path) {
-<span class="fc" id="L134">    boolean slash = false;</span>
-<span class="pc bfc" id="L135" title="All 2 branches covered.">    for (int i = 0; i &lt; path.length(); i++) {</span>
-<span class="pc bpc" id="L136" title="1 of 2 branches missed.">      if (path.charAt(i) == '/') {</span>
-<span class="nc" id="L137">        slash = true;</span>
-<span class="pc bpc" id="L138" title="2 of 4 branches missed.">      } else if (path.charAt(i) &gt; ' ' &amp;&amp; path.charAt(i) != 127) {</span>
-<span class="pc bpc" id="L139" title="5 of 6 branches missed.">        if (i == 0 || (i == 1 &amp;&amp; slash)) {</span>
-<span class="fc" id="L140">          return path;</span>
+<span class="fc" id="L136">    boolean slash = false;</span>
+<span class="pc bfc" id="L137" title="All 2 branches covered.">    for (int i = 0; i &lt; path.length(); i++) {</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">      if (path.charAt(i) == '/') {</span>
+<span class="nc" id="L139">        slash = true;</span>
+<span class="pc bpc" id="L140" title="2 of 4 branches missed.">      } else if (path.charAt(i) &gt; ' ' &amp;&amp; path.charAt(i) != 127) {</span>
+<span class="pc bpc" id="L141" title="5 of 6 branches missed.">        if (i == 0 || (i == 1 &amp;&amp; slash)) {</span>
+<span class="fc" id="L142">          return path;</span>
         }
-<span class="nc bnc" id="L142" title="All 2 branches missed.">        path = slash ? &quot;/&quot; + path.substring(i) : path.substring(i);</span>
-<span class="nc" id="L143">        return path;</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">        path = slash ? &quot;/&quot; + path.substring(i) : path.substring(i);</span>
+<span class="nc" id="L145">        return path;</span>
       }
     }
-<span class="pc bpc" id="L146" title="1 of 2 branches missed.">    return (slash ? &quot;/&quot; : &quot;&quot;);</span>
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">    return (slash ? &quot;/&quot; : &quot;&quot;);</span>
   }
 
   private String findDirectoryIndex(String path) {
-<span class="fc" id="L150">    return properties.findDirectoryIndex(path)</span>
-<span class="fc" id="L151">        .map(index -&gt; {</span>
-<span class="fc bfc" id="L152" title="All 2 branches covered.">          if (StringUtils.hasLength(path)) {</span>
-<span class="fc" id="L153">            return path + &quot;/&quot; + index;</span>
+<span class="fc" id="L152">    return properties.findDirectoryIndex(path)</span>
+<span class="fc" id="L153">        .map(index -&gt; {</span>
+<span class="fc bfc" id="L154" title="All 2 branches covered.">          if (StringUtils.hasLength(path)) {</span>
+<span class="fc" id="L155">            return path + &quot;/&quot; + index;</span>
           }
-<span class="fc" id="L155">          return index;</span>
+<span class="fc" id="L157">          return index;</span>
         })
-<span class="fc" id="L157">        .orElse(path);</span>
+<span class="fc" id="L159">        .orElse(path);</span>
   }
 
 }
