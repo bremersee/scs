@@ -27,6 +27,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * The application.
+ *
+ * @author Christian Bremer
  */
 @SpringBootApplication(exclude = {
     BaseCommonConvertersAutoConfiguration.class,

@@ -105,5 +105,5 @@ The angular application is then available under `http://localhost:4200/demo`.
 
 - [Release](https://bremersee.github.io/scs/index.html)
 
-- [Snapshot](https://nexus.bremersee.org/repository/maven-sites/scs/1.0.0-SNAPSHOT/index.html)
+- [Snapshot](https://nexus.bremersee.org/repository/maven-sites/scs/1.0.1-SNAPSHOT/index.html)
 

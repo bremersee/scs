@@ -38,6 +38,8 @@ import reactor.core.publisher.Mono;
 
 /**
  * The static content resource lookup function.
+ *
+ * @author Christian Bremer
  */
 @Validated
 @Slf4j
