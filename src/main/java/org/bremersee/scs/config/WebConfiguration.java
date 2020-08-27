@@ -28,12 +28,20 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 /**
  * The web configuration.
+ *
+ * @author Christian Bremer
  */
 @Configuration
 @EnableConfigurationProperties(ScsProperties.class)
 @Slf4j
 public class WebConfiguration {
 
+  /**
+   * The static content server router function.
+   *
+   * @param properties the properties
+   * @return the router function
+   */
   @RefreshScope
   @Bean
   public RouterFunction<ServerResponse> scsRouter(ScsProperties properties) {
