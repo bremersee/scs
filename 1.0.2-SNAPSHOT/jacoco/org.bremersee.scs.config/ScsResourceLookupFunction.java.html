@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang=""><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScsResourceLookupFunction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">scs</a> &gt; <a href="index.source.html" class="el_package">org.bremersee.scs.config</a> &gt; <span class="el_source">ScsResourceLookupFunction.java</span></div><h1>ScsResourceLookupFunction.java</h1><pre class="source lang-java linenums">/*
+ * Copyright 2020 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.bremersee.scs.config;
+
+import static org.bremersee.scs.config.ScsProperties.DEFAULT_CLASSPATH_LOCATION;
+import static org.bremersee.scs.config.ScsProperties.PATH_SEPARATOR;
+import static org.bremersee.scs.config.ScsProperties.createContentResource;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.http.server.PathContainer;
+import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
+import reactor.core.publisher.Mono;
+
+/**
+ * The static content resource lookup function.
+ *
+ * @author Christian Bremer
+ */
+<span class="fc" id="L42">@Slf4j</span>
+public class ScsResourceLookupFunction implements Function&lt;ServerRequest, Mono&lt;Resource&gt;&gt; {
+
+<span class="fc" id="L45">  private static final PathPatternParser PATTERN_PARSER = new PathPatternParser();</span>
+
+  private final PathPattern pattern;
+
+  private final Resource location;
+
+  private final ScsProperties properties;
+
+  /**
+   * Instantiates a new resource lookup function.
+   *
+   * @param properties the properties
+   */
+<span class="fc" id="L58">  public ScsResourceLookupFunction(ScsProperties properties) {</span>
+<span class="fc" id="L59">    this.properties = properties;</span>
+<span class="fc" id="L60">    this.pattern = PATTERN_PARSER.parse(properties.getPattern());</span>
+<span class="fc" id="L61">    if (!this.properties.getContentLocation().toLowerCase()</span>
+<span class="fc bfc" id="L62" title="All 2 branches covered.">        .startsWith(ScsProperties.CLASSPATH_PREFIX)) {</span>
+<span class="fc" id="L63">      File dir = new File(this.properties.getContentLocation());</span>
+<span class="pc bpc" id="L64" title="3 of 4 branches missed.">      if (!dir.exists() || !dir.isDirectory()) {</span>
+<span class="fc" id="L65">        log.warn(&quot;Content location {} does not exist, using fallback location {}&quot;,</span>
+<span class="fc" id="L66">            this.properties.getContentLocation(), DEFAULT_CLASSPATH_LOCATION);</span>
+<span class="fc" id="L67">        this.location = createContentResource(DEFAULT_CLASSPATH_LOCATION);</span>
+      } else {
+<span class="nc" id="L69">        this.location = properties.createContentResource();</span>
+      }
+<span class="fc" id="L71">    } else {</span>
+<span class="fc" id="L72">      this.location = properties.createContentResource();</span>
+    }
+<span class="fc" id="L74">  }</span>
+
+  @Override
+  public Mono&lt;Resource&gt; apply(ServerRequest request) {
+<span class="fc" id="L78">    PathContainer pathContainer = request.requestPath();</span>
+<span class="fc" id="L79">    log.debug(&quot;Looking for static content of request path {}&quot;, pathContainer.value());</span>
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">    if (!this.pattern.matches(pathContainer)) {</span>
+<span class="nc" id="L81">      log.debug(&quot;Pattern {} does not match request path, return no static content resource.&quot;,</span>
+<span class="nc" id="L82">          properties.getPattern());</span>
+<span class="nc" id="L83">      return Mono.empty();</span>
+    }
+<span class="fc" id="L85">    pathContainer = this.pattern.extractPathWithinPattern(pathContainer);</span>
+<span class="fc" id="L86">    String path = pathContainer.value();</span>
+<span class="fc" id="L87">    log.debug(&quot;Extracted path is {}&quot;, path);</span>
+<span class="fc" id="L88">    path = processPath(pathContainer.value());</span>
+<span class="fc" id="L89">    log.debug(&quot;Processed path is {}&quot;, path);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">    if (path.contains(&quot;%&quot;)) {</span>
+<span class="fc" id="L91">      path = StringUtils.uriDecode(path, StandardCharsets.UTF_8);</span>
+<span class="fc" id="L92">      log.debug(&quot;Url decoded path is {}&quot;, path);</span>
+    }
+<span class="fc bfc" id="L94" title="All 2 branches covered.">    if (!StringUtils.hasLength(path)) {</span>
+<span class="fc" id="L95">      log.debug(&quot;Path is empty, trying to find an index file.&quot;);</span>
+<span class="fc" id="L96">      path = findDirectoryIndex(path);</span>
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">      if (!StringUtils.hasLength(path)) {</span>
+<span class="nc" id="L98">        logNoIndex();</span>
+<span class="nc" id="L99">        return Mono.empty();</span>
+      }
+<span class="fc" id="L101">      log.debug(&quot;An index file was found, path is {}&quot;, path);</span>
+    }
+
+    try {
+<span class="fc" id="L105">      Resource resource = this.location.createRelative(path);</span>
+<span class="fc" id="L106">      boolean exists = resource.exists();</span>
+<span class="fc" id="L107">      boolean isReadable = resource.isReadable();</span>
+<span class="fc" id="L108">      log.debug(&quot;Resource exists? {}, resource is readable? {}&quot;, exists, isReadable);</span>
+<span class="fc bfc" id="L109" title="All 4 branches covered.">      if (exists &amp;&amp; !isReadable) {</span>
+<span class="fc" id="L110">        String pathWithIndex = findDirectoryIndex(path);</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">        if (path.equals(pathWithIndex)) {</span>
+<span class="nc" id="L112">          logNoIndex();</span>
+<span class="nc" id="L113">          return Mono.empty();</span>
+        }
+<span class="fc" id="L115">        path = pathWithIndex;</span>
+<span class="fc" id="L116">        resource = this.location.createRelative(path);</span>
+<span class="fc" id="L117">        isReadable = resource.isReadable();</span>
+      }
+<span class="pc bpc" id="L119" title="1 of 4 branches missed.">      if (exists &amp;&amp; isReadable) {</span>
+<span class="fc" id="L120">        log.debug(&quot;Returning static content resource {}&quot;, path);</span>
+<span class="fc" id="L121">        return Mono.just(resource);</span>
+      } else {
+<span class="fc" id="L123">        log.debug(&quot;Resource ('{}') does not exists.&quot;, path);</span>
+<span class="fc" id="L124">        return Mono.empty();</span>
+      }
+<span class="nc" id="L126">    } catch (IOException ex) {</span>
+<span class="nc" id="L127">      throw new UncheckedIOException(ex);</span>
+    }
+  }
+
+  private String processPath(String path) {
+<span class="fc" id="L132">    boolean slash = false;</span>
+<span class="pc bfc" id="L133" title="All 2 branches covered.">    for (int i = 0; i &lt; path.length(); i++) {</span>
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">      if (path.charAt(i) == '/') {</span>
+<span class="nc" id="L135">        slash = true;</span>
+<span class="pc bpc" id="L136" title="2 of 4 branches missed.">      } else if (path.charAt(i) &gt; ' ' &amp;&amp; path.charAt(i) != 127) {</span>
+<span class="pc bpc" id="L137" title="5 of 6 branches missed.">        if (i == 0 || (i == 1 &amp;&amp; slash)) {</span>
+<span class="fc" id="L138">          return path;</span>
+        }
+<span class="nc bnc" id="L140" title="All 2 branches missed.">        path = slash ? PATH_SEPARATOR + path.substring(i) : path.substring(i);</span>
+<span class="nc" id="L141">        return path;</span>
+      }
+    }
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">    return (slash ? PATH_SEPARATOR : &quot;&quot;);</span>
+  }
+
+  private String findDirectoryIndex(String path) {
+<span class="fc" id="L148">    return properties.findDirectoryIndex(path)</span>
+<span class="fc" id="L149">        .map(index -&gt; {</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">          if (StringUtils.hasLength(path)) {</span>
+<span class="fc" id="L151">            return path + PATH_SEPARATOR + index;</span>
+          }
+<span class="fc" id="L153">          return index;</span>
+        })
+<span class="fc" id="L155">        .orElse(path);</span>
+  }
+
+  private void logNoIndex() {
+<span class="nc" id="L159">    log.debug(&quot;No index file was found, return no static content resource.&quot;);</span>
+<span class="nc" id="L160">  }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
