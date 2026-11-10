@@ -8,8 +8,8 @@ pipeline {
     NAME = 'scs'
     NON_SECURE_PORT = 8080
     DOCKER_IMAGE = 'bremersee/scs'
-    DOCKER_PUSH = false
-    SITE = false
+    DOCKER_PUSH = true
+    SITE = true
     CLEAN = true
   }
   tools {
