@@ -16,6 +16,7 @@
 
 package org.bremersee.scs;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
@@ -24,7 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.bremersee.scs.config.ScsProperties;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -33,10 +33,12 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.util.FileCopyUtils;
 
 /**
  * The file system application tests.
@@ -45,22 +47,22 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
     "bremersee.scs.pattern=/**",
-    "bremersee.scs.directory-pattern-index-map.[/dir/**]:dir.html",
-    "bremersee.scs.directory-pattern-index-map.[/**]:index.html"
+    "bremersee.scs.directory-pattern-index-map.[/dir/**]=dir.html",
+    "bremersee.scs.directory-pattern-index-map.[/**]=index.html"
 })
-@ActiveProfiles({"in-memory"})
+@AutoConfigureWebTestClient
+@ActiveProfiles({"test"})
 @TestInstance(Lifecycle.PER_CLASS)
 @Slf4j
 class FileSystemApplicationTests {
 
-  private final DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
+  private static final DefaultResourceLoader RESOURCE_LOADER = new DefaultResourceLoader();
 
   private final List<File> files = new ArrayList<>();
 
   /**
    * The web test client.
    */
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
   WebTestClient webTestClient;
 
@@ -86,14 +88,14 @@ class FileSystemApplicationTests {
       files.add(root);
 
       File rootIndex = new File(root, "index.html");
-      IOUtils.copy(
-          resourceLoader.getResource("classpath:content/index.html").getInputStream(),
+      FileCopyUtils.copy(
+          RESOURCE_LOADER.getResource("classpath:content/index.html").getInputStream(),
           new FileOutputStream(rootIndex));
       files.add(rootIndex);
 
       File example = new File(root, "example.html");
-      IOUtils.copy(
-          resourceLoader.getResource("classpath:content/example.html").getInputStream(),
+      FileCopyUtils.copy(
+          RESOURCE_LOADER.getResource("classpath:content/example.html").getInputStream(),
           new FileOutputStream(example));
       files.add(example);
 
@@ -104,8 +106,8 @@ class FileSystemApplicationTests {
       files.add(dir);
 
       File dirIndex = new File(dir, "dir.html");
-      IOUtils.copy(
-          resourceLoader.getResource("classpath:content/dir/dir.html").getInputStream(),
+      FileCopyUtils.copy(
+          RESOURCE_LOADER.getResource("classpath:content/dir/dir.html").getInputStream(),
           new FileOutputStream(dirIndex));
       files.add(dirIndex);
 
@@ -142,7 +144,7 @@ class FileSystemApplicationTests {
           log.warn("Test file was not deleted: {}", file);
         }
       } catch (Exception e) {
-        log.warn("Test file was not deleted: {}", file);
+        log.warn("Test file was not deleted: {}", file, e);
       }
     }
   }
@@ -159,7 +161,10 @@ class FileSystemApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Static content server is running.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Static content server is running."));
+        });
   }
 
   /**
@@ -174,7 +179,10 @@ class FileSystemApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Static content server is running.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Static content server is running."));
+        });
   }
 
   /**
@@ -189,7 +197,10 @@ class FileSystemApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Example content.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Example content."));
+        });
   }
 
   /**
@@ -204,7 +215,10 @@ class FileSystemApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Dir content.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Dir content."));
+        });
   }
 
   /**
@@ -219,7 +233,10 @@ class FileSystemApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Dir content.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Dir content."));
+        });
   }
 
 }

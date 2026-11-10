@@ -17,11 +17,13 @@
 package org.bremersee.scs;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -35,16 +37,16 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
     "bremersee.scs.pattern=/**",
     "bremersee.scs.content-location=classpath:content/",
-    "bremersee.scs.directory-pattern-index-map.[/dir/**]:dir.html",
-    "bremersee.scs.directory-pattern-index-map.[/**]:index.html"
+    "bremersee.scs.directory-pattern-index-map.[/dir/**]=dir.html",
+    "bremersee.scs.directory-pattern-index-map.[/**]=index.html"
 })
-@ActiveProfiles({"in-memory"})
+@AutoConfigureWebTestClient
+@ActiveProfiles({"test"})
 class ApplicationTests {
 
   /**
    * The web test client.
    */
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
   WebTestClient webTestClient;
 
@@ -60,7 +62,10 @@ class ApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Static content server is running.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Static content server is running."));
+        });
   }
 
   /**
@@ -75,7 +80,10 @@ class ApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Static content server is running.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Static content server is running."));
+        });
   }
 
   /**
@@ -90,7 +98,10 @@ class ApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Example content.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Example content."));
+        });
   }
 
   /**
@@ -105,7 +116,10 @@ class ApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Dir content.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Dir content."));
+        });
   }
 
   /**
@@ -120,7 +134,10 @@ class ApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Dir content.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Dir content."));
+        });
   }
 
   /**
@@ -135,36 +152,42 @@ class ApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertFalse(content.isBlank()));
+        .value(content -> {
+          assertNotNull(content);
+          assertFalse(content.isBlank());
+        });
   }
 
   /**
-   * Gets metrics.
+   * Gets beans.
    */
   @WithMockUser(
       username = "actuator",
       password = "actuator",
       authorities = {"ROLE_ACTUATOR"})
   @Test
-  void getMetrics() {
+  void getBeans() {
     webTestClient
         .get()
-        .uri("/actuator/metrics")
+        .uri("/actuator/beans")
         .accept(MediaType.ALL)
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertFalse(content.isBlank()));
+        .value(content -> {
+          assertNotNull(content);
+          assertFalse(content.isBlank());
+        });
   }
 
   /**
-   * Gets metrics and expect unauthorized.
+   * Gets beans and expect unauthorized.
    */
   @Test
-  void getMetricsAndExpectUnauthorized() {
+  void getBeansAndExpectUnauthorized() {
     webTestClient
         .get()
-        .uri("/actuator/metrics")
+        .uri("/actuator/beans")
         .accept(MediaType.ALL)
         .exchange()
         .expectStatus().isUnauthorized();

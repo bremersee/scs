@@ -19,21 +19,14 @@ package org.bremersee.scs.config;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.util.Pair;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.validation.annotation.Validated;
 
 /**
  * The static content server properties.
@@ -42,12 +35,7 @@ import org.springframework.validation.annotation.Validated;
  */
 @ConfigurationProperties(prefix = "bremersee.scs")
 @RefreshScope
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
-@NoArgsConstructor
-@Validated
+@Data
 @Slf4j
 public class ScsProperties {
 
@@ -61,16 +49,30 @@ public class ScsProperties {
    */
   static final String DEFAULT_CLASSPATH_LOCATION = CLASSPATH_PREFIX + "content/";
 
-  @NotNull
+  /**
+   * The path separator.
+   */
+  static final String PATH_SEPARATOR = "/";
+
   private String pattern = "/**";
 
-  @NotNull
   private String contentLocation = "/opt/content/";
 
   private String defaultIndex = "index.html";
 
-  @NotNull
   private Map<String, String> directoryPatternIndexMap = new LinkedHashMap<>();
+
+  private boolean basicAuthEnabled = false;
+
+  private String serverAccessRole;
+
+
+  /**
+   * Instantiates new scs properties.
+   */
+  public ScsProperties() {
+    super();
+  }
 
   /**
    * Gets content location.
@@ -80,7 +82,7 @@ public class ScsProperties {
   public String getContentLocation() {
     return Optional.of(contentLocation)
         .map(String::trim)
-        .map(value -> !value.endsWith("/") ? value + "/" : value)
+        .map(value -> value.endsWith(PATH_SEPARATOR) ? value : value + PATH_SEPARATOR)
         .orElse(contentLocation);
   }
 
@@ -99,7 +101,7 @@ public class ScsProperties {
    * @param location the location
    * @return the resource
    */
-  static Resource createContentResource(@NotNull String location) {
+  static Resource createContentResource(String location) {
     return location.toLowerCase().startsWith(CLASSPATH_PREFIX)
         ? new ClassPathResource(location.substring(CLASSPATH_PREFIX.length()))
         : new FileSystemResource(location);
@@ -115,7 +117,7 @@ public class ScsProperties {
     final String path;
     if (requestPath != null) {
       String tmp = requestPath.trim();
-      path = tmp.startsWith("/") ? tmp : "/" + tmp;
+      path = tmp.startsWith(PATH_SEPARATOR) ? tmp : PATH_SEPARATOR + tmp;
     } else {
       path = "/";
     }
@@ -128,19 +130,24 @@ public class ScsProperties {
         .map(entry -> {
           String key = entry.getKey();
           log.debug("Key {} -> {}", entry.getKey(), key);
-          return Pair.of(key, entry.getValue());
+          return new Pair(key, entry.getValue());
         })
-        .peek(pair -> log.debug("Pattern {} matches path {}? {}", pair.getFirst(), path,
-            new AntPathMatcher().match(pair.getFirst(), path)))
-        .filter(pair -> new AntPathMatcher().match(pair.getFirst(), path))
+        .peek(pair -> log.debug("Pattern {} matches path {}? {}", pair.first(), path,
+            new AntPathMatcher().match(pair.first(), path)))
+        .filter(pair -> new AntPathMatcher().match(pair.first(), path))
         .findFirst()
-        .map(Pair::getSecond)
+        .map(Pair::second)
         .map(index -> {
-          if (index.startsWith("/")) {
-            return index.substring(1);
+          String tmp = index;
+          while (tmp.startsWith(PATH_SEPARATOR)) {
+            tmp = tmp.substring(1);
           }
-          return index;
+          return tmp;
         });
+  }
+
+  private record Pair(String first, String second) {
+
   }
 
 }

@@ -37,6 +37,13 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 public class WebConfiguration {
 
   /**
+   * Instantiates a new web configuration.
+   */
+  public WebConfiguration() {
+    super();
+  }
+
+  /**
    * The static content server router function.
    *
    * @param properties the properties

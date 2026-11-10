@@ -1,109 +1,68 @@
 pipeline {
-  agent none
+  agent {
+    label 'jdk25 && maven && docker'
+  }
   environment {
-    SERVICE_NAME = 'scs'
+    CODECOV_TOKEN = credentials('scs-codecov-token')
+    BRANCH_NAME = "${GIT_BRANCH.split("/").size() > 1 ? GIT_BRANCH.split("/")[1] : GIT_BRANCH}"
+    NAME = 'scs'
+    NON_SECURE_PORT = 8080
     DOCKER_IMAGE = 'bremersee/scs'
-    DEV_TAG = 'snapshot'
-    PROD_TAG = 'latest'
-    PUSH_SNAPSHOT = false
-    PUSH_RELEASE = true
-    SNAPSHOT_SITE = false
-    RELEASE_SITE = true
+    DOCKER_PUSH = false
+    SITE = false
+    CLEAN = true
+  }
+  tools {
+    jdk 'jdk25'
+    maven 'm3'
   }
   options {
     buildDiscarder(logRotator(numToKeepStr: '8', artifactNumToKeepStr: '8'))
   }
   stages {
-    stage('Test') {
-      agent {
-        label 'maven'
-      }
-      tools {
-        jdk 'jdk11'
-        maven 'm3'
-      }
-      when {
-        not {
-          branch 'feature/*'
-        }
-      }
+    stage('Tools') {
       steps {
         sh 'java -version'
         sh 'mvn -B --version'
-        sh 'mvn -B clean test'
+        sh 'echo $BRANCH_NAME'
+      }
+    }
+    stage('Build') {
+      steps {
+        sh 'mvn -B -P build-system clean package'
       }
       post {
         always {
           junit '**/surefire-reports/*.xml'
-          jacoco(
-              execPattern: '**/coverage-reports/*.exec'
+          recordCoverage(
+              tools: [[parser: 'JACOCO', pattern: '**/coverage-reports/*.exec']],
+              sourceCodeRetention: 'LAST_BUILD'
           )
         }
       }
     }
-    stage('Push snapshot') {
-      agent {
-        label 'maven'
-      }
+    stage('Site') {
       when {
         allOf {
-          branch 'develop'
-          environment name: 'PUSH_SNAPSHOT', value: 'true'
+          environment name: 'SITE', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+            branch 'feature/*'
+            branch 'bugfix/*'
+          }
         }
-      }
-      tools {
-        jdk 'jdk11'
-        maven 'm3'
       }
       steps {
         sh '''
-          mvn -B -DskipTests -Ddockerfile.skip=false clean package dockerfile:push
-          mvn -B -DskipTests -Ddockerfile.skip=false -Ddockerfile.tag=snapshot clean package dockerfile:push
-          docker system prune -a -f
+          mvn -B -P build-system,gh-pages-site site site:stage
+          git clone -b gh-pages git@github.com:bremersee/$NAME.git target/gh-pages
+          cp -rf target/staging/* target/gh-pages
+          git -C target/gh-pages add .
+          git -C target/gh-pages commit -m "Maven site"
+          git -C target/gh-pages push
+          rm -rf target/gh-pages
         '''
-      }
-    }
-    stage('Push release') {
-      agent {
-        label 'maven'
-      }
-      when {
-        allOf {
-          branch 'master'
-          environment name: 'PUSH_RELEASE', value: 'true'
-        }
-      }
-      tools {
-        jdk 'jdk11'
-        maven 'm3'
-      }
-      steps {
-        sh '''
-          mvn -B -DskipTests -Ddockerfile.skip=false clean package dockerfile:push
-          mvn -B -DskipTests -Ddockerfile.skip=false -Ddockerfile.tag=latest clean package dockerfile:push
-          docker system prune -a -f
-        '''
-      }
-    }
-    stage('Deploy snapshot site') {
-      agent {
-        label 'maven'
-      }
-      environment {
-        CODECOV_TOKEN = credentials('scs-codecov-token')
-      }
-      when {
-        allOf {
-          branch 'develop'
-          environment name: 'SNAPSHOT_SITE', value: 'true'
-        }
-      }
-      tools {
-        jdk 'jdk11'
-        maven 'm3'
-      }
-      steps {
-        sh 'mvn -B clean site-deploy'
       }
       post {
         always {
@@ -111,55 +70,54 @@ pipeline {
         }
       }
     }
-    stage('Deploy release site') {
-      agent {
-        label 'maven'
-      }
-      environment {
-        CODECOV_TOKEN = credentials('scs-codecov-token')
-      }
+    stage('Docker Push') {
       when {
         allOf {
-          branch 'master'
-          environment name: 'RELEASE_SITE', value: 'true'
+          environment name: 'DOCKER_PUSH', value: 'true'
+          anyOf {
+            branch 'develop'
+            branch 'main'
+          }
         }
       }
-      tools {
-        jdk 'jdk11'
-        maven 'm3'
-      }
       steps {
-        sh 'mvn -B -P gh-pages-site clean site site:stage scm-publish:publish-scm'
-      }
-      post {
-        always {
-          sh 'curl -s https://codecov.io/bash | bash -s - -t ${CODECOV_TOKEN}'
+        withCredentials([
+          usernamePassword(
+            credentialsId: 'dockerhub',
+            usernameVariable: 'DOCKER_USER',
+            passwordVariable: 'DOCKER_SECRET')
+        ]) {
+          sh '''
+            #!/bin/bash
+            MVN_VERSION=\$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            TAG=\$MVN_VERSION
+            LATEST="latest"
+            echo "Building and pushing docker image $DOCKER_IMAGE:\$TAG"
+            mvn -B -P build-system -DskipTests clean package
+            docker context use default
+            docker login -u $DOCKER_USER -p $DOCKER_SECRET
+            docker run --privileged --rm tonistiigi/binfmt --install all
+            docker \
+              buildx \
+              build \
+              -t $DOCKER_IMAGE:\$TAG \
+              -t $DOCKER_IMAGE:\$LATEST \
+              -f Dockerfile \
+              --platform=linux/amd64,linux/arm64 \
+              --build-arg port=$NON_SECURE_PORT \
+              --push \
+              .
+            docker image prune -a -f
+          '''
         }
       }
     }
-    stage('Test feature') {
-      agent {
-        label 'maven'
-      }
+    stage('Clean') {
       when {
-        branch 'feature/*'
-      }
-      tools {
-        jdk 'jdk11'
-        maven 'm3'
+        environment name: 'CLEAN', value: 'true'
       }
       steps {
-        sh 'java -version'
-        sh 'mvn -B --version'
-        sh 'mvn -B -P feature,allow-features clean test'
-      }
-      post {
-        always {
-          junit '**/surefire-reports/*.xml'
-          jacoco(
-              execPattern: '**/coverage-reports/*.exec'
-          )
-        }
+        sh 'mvn -B clean'
       }
     }
   }

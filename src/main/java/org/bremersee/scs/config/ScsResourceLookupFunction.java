@@ -17,6 +17,7 @@
 package org.bremersee.scs.config;
 
 import static org.bremersee.scs.config.ScsProperties.DEFAULT_CLASSPATH_LOCATION;
+import static org.bremersee.scs.config.ScsProperties.PATH_SEPARATOR;
 import static org.bremersee.scs.config.ScsProperties.createContentResource;
 
 import java.io.File;
@@ -24,13 +25,10 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.server.PathContainer;
 import org.springframework.util.StringUtils;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
@@ -41,7 +39,6 @@ import reactor.core.publisher.Mono;
  *
  * @author Christian Bremer
  */
-@Validated
 @Slf4j
 public class ScsResourceLookupFunction implements Function<ServerRequest, Mono<Resource>> {
 
@@ -58,7 +55,7 @@ public class ScsResourceLookupFunction implements Function<ServerRequest, Mono<R
    *
    * @param properties the properties
    */
-  public ScsResourceLookupFunction(@NotNull @Valid ScsProperties properties) {
+  public ScsResourceLookupFunction(ScsProperties properties) {
     this.properties = properties;
     this.pattern = PATTERN_PARSER.parse(properties.getPattern());
     if (!this.properties.getContentLocation().toLowerCase()
@@ -76,10 +73,9 @@ public class ScsResourceLookupFunction implements Function<ServerRequest, Mono<R
     }
   }
 
-  @SuppressWarnings("BlockingMethodInNonBlockingContext")
   @Override
   public Mono<Resource> apply(ServerRequest request) {
-    PathContainer pathContainer = request.pathContainer();
+    PathContainer pathContainer = request.requestPath();
     log.debug("Looking for static content of request path {}", pathContainer.value());
     if (!this.pattern.matches(pathContainer)) {
       log.debug("Pattern {} does not match request path, return no static content resource.",
@@ -98,8 +94,8 @@ public class ScsResourceLookupFunction implements Function<ServerRequest, Mono<R
     if (!StringUtils.hasLength(path)) {
       log.debug("Path is empty, trying to find an index file.");
       path = findDirectoryIndex(path);
-      if (StringUtils.isEmpty(path)) {
-        log.debug("No index file was found, return no static content resource.");
+      if (!StringUtils.hasLength(path)) {
+        logNoIndex();
         return Mono.empty();
       }
       log.debug("An index file was found, path is {}", path);
@@ -113,7 +109,7 @@ public class ScsResourceLookupFunction implements Function<ServerRequest, Mono<R
       if (exists && !isReadable) {
         String pathWithIndex = findDirectoryIndex(path);
         if (path.equals(pathWithIndex)) {
-          log.debug("No index file was found, return no static content resource.");
+          logNoIndex();
           return Mono.empty();
         }
         path = pathWithIndex;
@@ -141,22 +137,26 @@ public class ScsResourceLookupFunction implements Function<ServerRequest, Mono<R
         if (i == 0 || (i == 1 && slash)) {
           return path;
         }
-        path = slash ? "/" + path.substring(i) : path.substring(i);
+        path = slash ? PATH_SEPARATOR + path.substring(i) : path.substring(i);
         return path;
       }
     }
-    return (slash ? "/" : "");
+    return (slash ? PATH_SEPARATOR : "");
   }
 
   private String findDirectoryIndex(String path) {
     return properties.findDirectoryIndex(path)
         .map(index -> {
           if (StringUtils.hasLength(path)) {
-            return path + "/" + index;
+            return path + PATH_SEPARATOR + index;
           }
           return index;
         })
         .orElse(path);
+  }
+
+  private void logNoIndex() {
+    log.debug("No index file was found, return no static content resource.");
   }
 
 }

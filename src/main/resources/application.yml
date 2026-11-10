@@ -3,22 +3,8 @@ bremersee:
     pattern: ${SCS_PATTERN:/**}
     content-location: ${SCS_CONTENT_LOCATION:/opt/content/}
     default-index: ${SCS_INDEX:index.html}
-  actuator:
-    auth:
-      enable: auto
-      enable-cors: false
-  cors:
-    enable: false
-  auth:
-    resource-server: none
-    frame-options-mode: sameorigin
-  redis:
-    embedded: true
-spring:
-  cloud:
-    loadbalancer:
-      ribbon:
-        enabled: false
+    basic-auth-enabled: false
+    server-access-role: ${ROLE_USER:}
 
 eureka:
   client:
@@ -33,14 +19,9 @@ management:
         allowed-headers: "*"
         allowed-methods: "*"
         allowed-origins: "*"
-        allow-credentials: true
   endpoint:
     health:
       show-details: when_authorized
-  # Redis health check is broken: https://github.com/spring-projects/spring-boot/issues/22061
-  health:
-    redis:
-      enabled: false
 
 server:
   port: ${SERVER_PORT:8080}
@@ -57,22 +38,34 @@ logging:
 ---
 
 spring:
-  profiles: in-memory
+  config:
+    activate:
+      on-profile: in-memory
 
 bremersee:
-  auth:
-    in-memory-users:
-      - name: ${$ADMIN_USER_NAME:admin}
-        password: ${$ADMIN_USER_PASSWORD:admin}
-        authorities:
-          - "ROLE_USER"
-          - "ROLE_ADMIN"
-      - name: ${$ACTUATOR_USER_NAME:actuator}
-        password: ${$ACTUATOR_USER_PASSWORD:actuator}
-        authorities:
-          - "ROLE_ACTUATOR"
-          - "ROLE_ACTUATOR_ADMIN"
-      - name: ${$SCS_USER_NAME:user}
-        password: ${SCS_USER_PASSWORD:user}
-        authorities:
-          - "ROLE_USER"
+  authentication:
+    in-memory:
+      enabled: true
+      users:
+        - name: ${USER_NAME:actuator}
+          password: ${USER_PASSWORD:changeit}
+          authorities:
+            - ${USER_ROLE:}
+        - name: ${ADMIN_NAME:actuator}
+          password: ${ADMIN_PASSWORD:changeit}
+          authorities:
+            - ROLE_ACTUATOR_ADMIN
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: test
+
+  security:
+    user:
+      name: actuator
+      password: changeit
+      roles:
+        - "ACTUATOR_ADMIN"
