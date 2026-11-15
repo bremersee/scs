@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package org.bremersee.scs;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -33,15 +35,18 @@ import org.springframework.test.web.reactive.server.WebTestClient;
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {
     "bremersee.scs.content-location=classpath:content/",
-    "bremersee.auth.resource-server:auto"
+    "bremersee.scs.basic-auth-enabled=true",
+    "spring.security.user.name=user",
+    "spring.security.user.password=user"
+
 })
-@ActiveProfiles({"in-memory"})
+@AutoConfigureWebTestClient
+@ActiveProfiles({"test"})
 class ProtectedApplicationTests {
 
   /**
    * The web test client.
    */
-  @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
   WebTestClient webTestClient;
 
@@ -61,7 +66,10 @@ class ProtectedApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Static content server is running.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Static content server is running."));
+        });
   }
 
   /**
@@ -93,7 +101,10 @@ class ProtectedApplicationTests {
         .exchange()
         .expectStatus().isOk()
         .expectBody(String.class)
-        .value(content -> assertTrue(content.contains("Example content.")));
+        .value(content -> {
+          assertNotNull(content);
+          assertTrue(content.contains("Example content."));
+        });
   }
 
   /**

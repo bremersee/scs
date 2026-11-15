@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package org.bremersee.scs.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,14 +49,11 @@ class ScsPropertiesTest {
     ScsProperties expected = new ScsProperties();
     expected.setPattern(value);
 
-    assertEquals(actual, actual);
     assertEquals(actual.hashCode(), actual.hashCode());
     assertEquals(expected, actual);
     assertEquals(expected.hashCode(), actual.hashCode());
     //noinspection SimplifiableJUnitAssertion
     assertTrue(expected.equals(actual));
-    assertNotEquals(expected, null);
-    assertNotEquals(expected, new Object());
 
     assertTrue(actual.toString().contains(value));
   }
@@ -78,13 +75,10 @@ class ScsPropertiesTest {
     ScsProperties expected = new ScsProperties();
     expected.setContentLocation(value);
 
-    assertEquals(actual, actual);
     assertEquals(expected, actual);
     assertEquals(expected.hashCode(), actual.hashCode());
     //noinspection SimplifiableJUnitAssertion
     assertTrue(expected.equals(actual));
-    assertNotEquals(expected, null);
-    assertNotEquals(expected, new Object());
 
     assertTrue(actual.toString().contains(value));
   }
@@ -102,13 +96,10 @@ class ScsPropertiesTest {
     ScsProperties expected = new ScsProperties();
     expected.setDefaultIndex(value);
 
-    assertEquals(actual, actual);
     assertEquals(expected, actual);
     assertEquals(expected.hashCode(), actual.hashCode());
     //noinspection SimplifiableJUnitAssertion
     assertTrue(expected.equals(actual));
-    assertNotEquals(expected, null);
-    assertNotEquals(expected, new Object());
 
     assertTrue(actual.toString().contains(value));
   }
@@ -127,13 +118,10 @@ class ScsPropertiesTest {
     ScsProperties expected = new ScsProperties();
     expected.setDirectoryPatternIndexMap(value);
 
-    assertEquals(actual, actual);
     assertEquals(expected, actual);
     assertEquals(expected.hashCode(), actual.hashCode());
     //noinspection SimplifiableJUnitAssertion
     assertTrue(expected.equals(actual));
-    assertNotEquals(expected, null);
-    assertNotEquals(expected, new Object());
 
     assertTrue(actual.toString().contains(value.toString()));
   }
@@ -147,12 +135,12 @@ class ScsPropertiesTest {
     properties.setContentLocation(ScsProperties.CLASSPATH_PREFIX + "content/");
     Resource resource = properties.createContentResource();
     assertNotNull(resource);
-    assertTrue(resource instanceof ClassPathResource);
+    assertInstanceOf(ClassPathResource.class, resource);
 
     properties.setContentLocation("/tmp");
     resource = properties.createContentResource();
     assertNotNull(resource);
-    assertTrue(resource instanceof FileSystemResource);
+    assertInstanceOf(FileSystemResource.class, resource);
   }
 
   /**

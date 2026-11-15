@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package org.bremersee.scs.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.server.PathContainer;
+import org.springframework.http.server.RequestPath;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import reactor.test.StepVerifier;
 
@@ -36,7 +36,7 @@ import reactor.test.StepVerifier;
 class ScsResourceLookupFunctionTest {
 
   /**
-   * With non existing content location.
+   * With non-existing content location.
    *
    * @throws Exception the exception
    */
@@ -50,9 +50,11 @@ class ScsResourceLookupFunctionTest {
     ScsProperties properties = new ScsProperties();
     ScsResourceLookupFunction lookup = new ScsResourceLookupFunction(properties);
 
-    PathContainer pathContainer = PathContainer.parsePath("/");
+    RequestPath pathContainer = RequestPath.parse("/", null);
     ServerRequest request = mock(ServerRequest.class);
-    when(request.pathContainer()).thenReturn(pathContainer);
+    doReturn(pathContainer)
+        .when(request)
+        .requestPath();
 
     StepVerifier.create(lookup.apply(request))
         .assertNext(resource -> {
@@ -71,9 +73,11 @@ class ScsResourceLookupFunctionTest {
     properties.setContentLocation("classpath:content");
     ScsResourceLookupFunction lookup = new ScsResourceLookupFunction(properties);
 
-    PathContainer pathContainer = PathContainer.parsePath("/stra%C3%9Fe/enc.html");
+    RequestPath pathContainer = RequestPath.parse("/stra%C3%9Fe/enc.html", null);
     ServerRequest request = mock(ServerRequest.class);
-    when(request.pathContainer()).thenReturn(pathContainer);
+    doReturn(pathContainer)
+        .when(request)
+        .requestPath();
 
     StepVerifier.create(lookup.apply(request))
         .assertNext(resource -> {
@@ -84,7 +88,7 @@ class ScsResourceLookupFunctionTest {
   }
 
   /**
-   * With empty path and non existing resource.
+   * With empty path and non-existing resource.
    */
   @Test
   void withEmptyPathAndNonExistingResource() {
@@ -93,16 +97,18 @@ class ScsResourceLookupFunctionTest {
     properties.setDefaultIndex("not-exists.html");
     ScsResourceLookupFunction lookup = new ScsResourceLookupFunction(properties);
 
-    PathContainer pathContainer = PathContainer.parsePath("/");
+    RequestPath pathContainer = RequestPath.parse("/", null);
     ServerRequest request = mock(ServerRequest.class);
-    when(request.pathContainer()).thenReturn(pathContainer);
+    doReturn(pathContainer)
+        .when(request)
+        .requestPath();
 
     StepVerifier.create(lookup.apply(request))
         .verifyComplete();
   }
 
   /**
-   * With non existing resource.
+   * With non-existing resource.
    */
   @Test
   void withNonExistingResource() {
@@ -111,9 +117,11 @@ class ScsResourceLookupFunctionTest {
     properties.setDefaultIndex("not-exists.html");
     ScsResourceLookupFunction lookup = new ScsResourceLookupFunction(properties);
 
-    PathContainer pathContainer = PathContainer.parsePath("/dir/not-exists.html");
+    RequestPath pathContainer = RequestPath.parse("/dir/not-exists.html", null);
     ServerRequest request = mock(ServerRequest.class);
-    when(request.pathContainer()).thenReturn(pathContainer);
+    doReturn(pathContainer)
+        .when(request)
+        .requestPath();
 
     StepVerifier.create(lookup.apply(request))
         .verifyComplete();
